@@ -1,0 +1,8 @@
+{
+  "name": "Nyxar Secure Messenger",
+  "description": "Ultra-secure, zero-knowledge, end-to-end encrypted messaging platform featuring client-side encryption, secure identity generation, and AI integration.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

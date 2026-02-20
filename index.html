@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0a0a0b" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nyxar | Zero-Knowledge Messaging</title>
+    <link rel="manifest" href="manifest.json" />
+    <!-- Added Favicon to fix 404 -->
+    <link rel="icon" href="https://fav.farm/🛡️" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Anti-Inspect / Anti-Theft Protection
+      document.addEventListener('contextmenu', event => event.preventDefault());
+      document.onkeydown = function(e) {
+        if (e.keyCode == 123) { // F12
+          return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+          return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
+          return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+          return false;
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
+          return false;
+        }
+      };
+      
+      // CRITICAL: Capture the install prompt immediately before React loads
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        window.deferredPrompt = e;
+        console.log("📲 Native Install Prompt Captured (Global)");
+      });
+
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              // We use CSS variables for colors to allow dynamic theming
+              nyx: {
+                bg: 'var(--bg-color)',
+                sidebar: 'var(--sidebar-bg)',
+                card: 'var(--card-bg)',
+                border: 'var(--border-color)',
+                text: 'var(--text-color)',
+                muted: 'var(--muted-color)',
+                accent: 'var(--accent-color)',
+                accentHover: 'var(--accent-hover)',
+                secondary: 'var(--secondary-color)',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+      
+      /* THEME DEFINITIONS */
+      :root {
+        /* Default Nyxar Dark */
+        --bg-color: #0a0a0b;
+        --sidebar-bg: rgba(24, 24, 27, 0.5);
+        --card-bg: #18181b;
+        --border-color: #27272a;
+        --text-color: #f4f4f5;
+        --muted-color: #a1a1aa;
+        --accent-color: #06b6d4; /* Cyan 500 */
+        --accent-hover: #0891b2;
+        --secondary-color: #8b5cf6; /* Violet 500 */
+      }
+
+      [data-theme='light'] {
+        --bg-color: #f8fafc;
+        --sidebar-bg: #ffffff;
+        --card-bg: #ffffff;
+        --border-color: #e2e8f0;
+        --text-color: #0f172a;
+        --muted-color: #64748b;
+        --accent-color: #0284c7; /* Sky 600 */
+        --accent-hover: #0369a1;
+        --secondary-color: #7c3aed;
+      }
+
+      [data-theme='midnight'] {
+        --bg-color: #0f172a; /* Slate 900 */
+        --sidebar-bg: rgba(15, 23, 42, 0.6);
+        --card-bg: #1e293b;
+        --border-color: #334155;
+        --text-color: #e2e8f0;
+        --muted-color: #94a3b8;
+        --accent-color: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --secondary-color: #6366f1;
+      }
+
+      [data-theme='cyberpunk'] {
+        --bg-color: #000000;
+        --sidebar-bg: rgba(20, 20, 20, 0.8);
+        --card-bg: #111111;
+        --border-color: #333333;
+        --text-color: #00ff41; /* Hacker Green */
+        --muted-color: #008f11;
+        --accent-color: #ff00ff; /* Magenta */
+        --accent-hover: #d100d1;
+        --secondary-color: #00ffff; /* Cyan */
+      }
+
+      [data-theme='matrix'] {
+        --bg-color: #0d0208;
+        --sidebar-bg: #001a00;
+        --card-bg: #002b00;
+        --border-color: #004d00;
+        --text-color: #00ff00;
+        --muted-color: #008f11;
+        --accent-color: #00ff41;
+        --accent-hover: #00cc33;
+        --secondary-color: #39ff14;
+      }
+
+      [data-theme='dracula'] {
+        --bg-color: #282a36;
+        --sidebar-bg: #21222c;
+        --card-bg: #44475a;
+        --border-color: #6272a4;
+        --text-color: #f8f8f2;
+        --muted-color: #bfbfbf;
+        --accent-color: #ff79c6; /* Pink */
+        --accent-hover: #bd93f9;
+        --secondary-color: #50fa7b; /* Green */
+      }
+
+      [data-theme='royal'] {
+        --bg-color: #1a0b2e;
+        --sidebar-bg: #2d1b4e;
+        --card-bg: #432c7a;
+        --border-color: #5b4294;
+        --text-color: #ffd700; /* Gold */
+        --muted-color: #dcd0ff;
+        --accent-color: #ffcc00;
+        --accent-hover: #ffaa00;
+        --secondary-color: #9d00ff;
+      }
+
+      [data-theme='sunset'] {
+        --bg-color: #2d1b2e;
+        --sidebar-bg: #462538;
+        --card-bg: #b5505c;
+        --border-color: #e57a6d;
+        --text-color: #ffecd6;
+        --muted-color: #ffbba6;
+        --accent-color: #ff8e72;
+        --accent-hover: #ff6b6b;
+        --secondary-color: #fca311;
+      }
+      
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-color); 
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--muted-color); 
+      }
+
+      .glass-panel {
+        background: var(--sidebar-bg);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+    </style>
+<!-- Register Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(req => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Error', err));
+    });
+  }
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.42.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.574.0",
+    "express": "https://esm.sh/express@^5.2.1",
+    "http": "https://esm.sh/http@^0.0.1-security",
+    "socket.io": "https://esm.sh/socket.io@^4.8.3",
+    "cors": "https://esm.sh/cors@^2.8.6",
+    "socket.io-client": "https://esm.sh/socket.io-client@^4.8.3",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
+    "@vitejs/plugin-basic-ssl": "https://esm.sh/@vitejs/plugin-basic-ssl@^2.1.4",
+    "path": "https://esm.sh/path@^0.12.7",
+    "fs": "https://esm.sh/fs@^0.0.1-security",
+    "sqlite3": "https://esm.sh/sqlite3@^5.1.7"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <!-- CRITICAL FIX: Load the entry point for React -->
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
